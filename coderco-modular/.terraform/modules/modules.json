@@ -1,0 +1,1 @@
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"law","Source":"./modules/monitoring","Dir":"modules/monitoring"},{"Key":"lb","Source":"./modules/load_balancer","Dir":"modules/load_balancer"},{"Key":"network","Source":"./modules/network","Dir":"modules/network"},{"Key":"vmss","Source":"./modules/vmss","Dir":"modules/vmss"}]}

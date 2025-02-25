@@ -1,84 +1,57 @@
-# 🚀 CoderCo Azure Starter
+# CoderCo Azure Terraform Starter 🚀
 
 ## 🌍 Overview
+This Terraform configuration deploys a scalable infrastructure on **Microsoft Azure**, including:
 
-Welcome to the **CoderCo Azure Terraform Starter**! This technical assessment is designed to evaluate your ability to deploy and manage infrastructure on **Microsoft Azure using Terraform**. The primary focus is on **Virtual Machine Scale Sets (VMSS), high availability, and best practices**.
+- **Virtual Machine Scale Sets (VMSS)** for automatic scaling of Ubuntu VMs.
+- **Load Balancer (LB)** for high availability and distributing traffic to VMSS instances.
+- **Network Security Group (NSG)** with rules allowing HTTP (port 80) and SSH (port 22).
+- A simple **Apache web server** running on Ubuntu 22.04 LTS VMs that serves a test message.
 
-The provided Terraform configuration contains multiple errors and incomplete features. Your task is to **debug, improve, and extend the solution** following **Terraform best practices**.
+## 🔧 Deployed Resources
+- **Resource Group**: `coderco-tech-test`
+- **Virtual Network**: `coderco-vnet` with a subnet `coderco-subnet`.
+- **Public IP Address** for Load Balancer access.
+- **Load Balancer**: Distributes HTTP traffic to VM instances.
+- **Network Security Group (NSG)**: Configured to allow HTTP and SSH traffic.
+- **Virtual Machine Scale Set (VMSS)**: 2 Ubuntu VMs running Apache, serving a "Hello! Your CoderCo Tech Test VM is working!" message.
 
-No direct SSH or RDP access is required, but you can enable access for troubleshooting if necessary. Feel free to tackle the tasks in any order, and remember, you are **not expected to complete all tasks** within the given time.
+## ⚙️ Key Features
+### 1. **Load Balancer** 🔄
+- Configured with a health probe to ensure traffic is only directed to healthy VMs.
+- Frontend IP to route traffic from the public internet.
 
-## 🛠 Pre-Requisites
+### 2. **VMSS** 🖥️
+- Two Ubuntu VMs in a scale set.
+- Auto-installs Apache with a simple web page upon VM boot.
+- Integrated with the Load Balancer backend pool for traffic distribution.
 
-Ensure you have the following installed:
+### 3. **Security** 🔐
+- **NSG** allows HTTP traffic (port 80) and SSH (port 22) to the VMs for management and application access.
 
-- ✅ **Azure CLI** (authenticated to your Azure subscription)
-- ✅ **Terraform** (latest stable version)
-- ✅ **jq** (for JSON parsing in CLI)
+## 🚀 Deployment Instructions
 
-## 📌 Tasks
+### 1. Initialize Terraform
+```bash
+terraform init
+2. Review the Plan
 
-### Debug & Fix the Configuration
+terraform plan
+3. Apply the Configuration
 
-- The supplied Terraform code contains multiple **syntax, provider, and logical errors**.
-- Fix the errors to ensure `terraform plan` runs successfully.
-- Ensure **Terraform state management** is configured properly (**use remote backend** where applicable).
+terraform apply
+4. Access the Web Application 🌐
+Once the deployment is complete, you can access the VM instances via the Load Balancer's public IP on HTTP port 80:
 
-### 🚀 Ensure Successful Deployment
 
-- The current configuration **fails during apply**. Identify and fix the issues.
-- Ensure the application deployed to the VM scale set is **accessible via HTTP on port 80**.
-- Test by retrieving the **public IP** and verifying a response like:
-  
-"Hello! Your CoderCo Tech Test VM is working!"
+http://<public_ip>
+You should see the message:
 
-### 📈 Scale & High Availability Enhancements
 
-- Update the **Virtual Machine Scale Set (VMSS)** to run **3 instances**.
-- Distribute instances across **multiple Availability Zones** for high availability.
-- Ensure **automatic scaling** is configured correctly.
+Hello! Your CoderCo Tech Test VM is working!
 
-### 🔒 Networking & Security Best Practices
+✅ Conclusion
+This configuration provides a simple yet scalable infrastructure using Azure VMSS and Load Balancer, ensuring high availability and accessibility of your application.
 
-- Upgrade to an Azure Application Load Balancer (ALB) to distribute traffic across VMSS nodes.
-- Ensure the infrastructure follows **principle of least privilege** by restricting unnecessary security group rules.
-- Configure **network security groups (NSGs)** to allow only **port 80 for HTTP traffic**.
-- Ensure **data encryption at rest** for any storage resources.
-
-### 🐧 Make the Solution Linux-Compatible
-
-- The current solution is Windows-based. Modify it to deploy **Linux-based VMs** instead.
-- Ensure the application starts and serves traffic correctly on Linux.
-- Use **cloud-init or Terraform provisioners** to configure the VM on boot.
-
-### 🏆 Enforce Terraform Best Practices
-
-- Remove any **Terraform warnings and deprecations**.
-- Refactor the solution to follow the **DRY (Don't Repeat Yourself) principle** using:
-- **Modules** for reusable components.
-- **Variables** for configurable parameters.
-- **Outputs** to expose useful information.
-- **Locals** to simplify expressions.
-- Implement **Terraform linting** to ensure code quality.
-- Use **Terraform locking and version pinning** to prevent unintended updates.
-
-### ⭐ Extra Credit
-
-- Implement **logging and monitoring** using Azure Monitor and Log Analytics.
-- Store Terraform state in an **Azure Storage Account with state locking**.
-- Automate Terraform deployments using **CI/CD pipelines (GitHub Actions, Azure DevOps)**.
-
----
-
-## 📩 Submission Guidelines
-
-- Provide a **GitHub repository** with your Terraform code and documentation.
-- Include a **README.md** with instructions on how to apply the Terraform configuration.
-- Document any **assumptions, limitations, or trade-offs** you made.
-- If using modules, structure your code following a **clean, modular approach**.
-
-**All the best!** 🚀
-
-## Version Details
-
-**Version:** 1.0
+📄 License
+This project is licensed under the MIT License.

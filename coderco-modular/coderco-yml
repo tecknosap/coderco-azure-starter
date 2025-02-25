@@ -1,0 +1,82 @@
+trigger: none
+# Trigger the pipeline when changes are made to the 'main' branch
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  resource-rg: 'az-01-rg'
+  stant: 'stro90123wss'
+  container: 'tfstate'
+  key: 'terraform.tfstate'
+
+stages:
+  - stage: tfvalidate
+    jobs:
+      - job: validate
+        continueOnError: false
+        steps:
+        - task: TerraformInstaller@1
+          displayName: Install Terraform
+          inputs:
+            terraformVersion: 'latest'
+        
+        - task: TerraformTaskV4@4
+          displayName: Initialize Terraform Backend
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/coderco-modular'
+            backendServiceArm: 'Azure-DevOps-SP'
+            backendAzureRmResourceGroupName: '$(resource-rg)'
+            backendAzureRmStorageAccountName: '$(stant)'
+            backendAzureRmContainerName: '$(container)'
+            backendAzureRmKey: '$(key)'
+        
+        - task: TerraformTaskV4@4
+          displayName: Validate Terraform Configuration
+          inputs:
+            provider: 'azurerm'
+            command: 'validate'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/coderco-modular'
+
+  - stage: tfdeploy
+    condition: succeeded('tfvalidate')
+    dependsOn: tfvalidate
+    jobs:
+      - job: deploy
+        steps:
+        - task: TerraformInstaller@1
+          displayName: Install Terraform
+          inputs:
+            terraformVersion: 'latest'
+        
+        - task: TerraformTaskV4@4
+          displayName: Initialize Terraform Backend
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/coderco-modular'
+            backendServiceArm: 'Azure-DevOps-SP'
+            backendAzureRmResourceGroupName: '$(resource-rg)'
+            backendAzureRmStorageAccountName: '$(stant)'
+            backendAzureRmContainerName: '$(container)'
+            backendAzureRmKey: '$(key)'
+        
+        - task: TerraformTaskV4@4
+          displayName: Plan Terraform Changes
+          inputs:
+            provider: 'azurerm'
+            command: 'plan'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/coderco-modular'
+            environmentServiceNameAzureRM: 'Azure-DevOps-SP'
+            commandOptions: '-lock-timeout=300s' # Prevent lock acquisition errors
+        
+        - task: TerraformTaskV4@4
+          displayName: Apply Terraform Changes
+          inputs:
+            provider: 'azurerm'
+            command: 'apply'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/coderco-modular'
+            environmentServiceNameAzureRM: 'Azure-DevOps-SP'
+            commandOptions: '-auto-approve -lock-timeout=300s' # Avoid waiting indefinitely for lock
