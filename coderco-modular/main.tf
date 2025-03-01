@@ -1,20 +1,24 @@
+# Resource Group
 resource "azurerm_resource_group" "coderco" {
   name     = var.resource_group_name
   location = var.location
 }
 
+# Network Module
 module "network" {
-  source                                 = "./modules/network"
-  resource_group_name                    = azurerm_resource_group.coderco.name
-  location                               = azurerm_resource_group.coderco.location
+  source              = "./modules/network"
+  resource_group_name = azurerm_resource_group.coderco.name
+  location            = azurerm_resource_group.coderco.location
 }
 
+# Load Balancer Module
 module "lb" {
-  source                                 = "./modules/load_balancer"
-  resource_group_name                    = azurerm_resource_group.coderco.name
-  location                               = azurerm_resource_group.coderco.location
+  source              = "./modules/load_balancer"
+  resource_group_name = azurerm_resource_group.coderco.name
+  location            = azurerm_resource_group.coderco.location
 }
 
+# VMSS Module
 module "vmss" {
   source                                 = "./modules/vmss"
   resource_group_name                    = azurerm_resource_group.coderco.name
@@ -25,10 +29,11 @@ module "vmss" {
   depends_on                             = [module.network, module.lb]
 }
 
+# Monitoring Module
 module "law" {
-  source                                 = "./modules/monitoring"
-  resource_group_name                    = azurerm_resource_group.coderco.name
-  location                               = azurerm_resource_group.coderco.location
-  vmss_id                                = module.vmss.vmss_id
-  depends_on                             = [module.vmss]
+  source              = "./modules/monitoring"
+  resource_group_name = azurerm_resource_group.coderco.name
+  location            = azurerm_resource_group.coderco.location
+  vmss_id             = module.vmss.vmss_id
+  depends_on          = [module.vmss]
 }

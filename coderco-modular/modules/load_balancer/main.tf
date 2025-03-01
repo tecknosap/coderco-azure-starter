@@ -1,8 +1,5 @@
-######################################
-# Public IP Resource for Load Balancer
-# Creates a public IP resource to be used by the Load Balancer for external communication.
-# The IP is assigned statically and can be used across multiple availability zones.
-######################################
+# Public IP for Load Balancer
+# Static IP used for external communication.
 resource "azurerm_public_ip" "coderco_lb_module_pip" {
   name                = var.public_ip_name
   resource_group_name = var.resource_group_name
@@ -12,11 +9,8 @@ resource "azurerm_public_ip" "coderco_lb_module_pip" {
   zones               = ["1", "2"]
 }
 
-######################################
-# Load Balancer Resource
-# Creates the Load Balancer which distributes traffic among VM instances based on the defined rules.
-# The Load Balancer is associated with the previously created public IP.
-######################################
+# Load Balancer
+# Distributes traffic among backend VMs.
 resource "azurerm_lb" "coderco_lb_module" {
   name                = var.lb_name
   resource_group_name = var.resource_group_name
@@ -29,21 +23,15 @@ resource "azurerm_lb" "coderco_lb_module" {
   }
 }
 
-######################################
-# Load Balancer Backend Address Pool
-# Creates a backend pool in the Load Balancer where VM instances will be registered.
-# This pool allows Load Balancer to distribute traffic to the VMs based on their health and availability.
-######################################
+# Backend Pool
+# Registers VM instances for load balancing.
 resource "azurerm_lb_backend_address_pool" "coderco_backend_pool" {
   name            = var.backend_pool_name
   loadbalancer_id = azurerm_lb.coderco_lb_module.id
 }
 
-######################################
-# Health Probe for Load Balancer
-# Defines a health probe that checks the health of the backend VM instances by sending requests to a specified port.
-# If the VM is healthy, it receives traffic from the Load Balancer.
-######################################
+# Health Probe
+# Monitors VM health for traffic distribution.
 resource "azurerm_lb_probe" "coderco_lb_probe" {
   name            = var.health_probe_name
   loadbalancer_id = azurerm_lb.coderco_lb_module.id
@@ -52,11 +40,8 @@ resource "azurerm_lb_probe" "coderco_lb_probe" {
   request_path    = var.probe_request_path
 }
 
-######################################
 # Load Balancer Rule
-# Defines a rule that binds a frontend IP configuration to the backend pool, specifying how traffic should be forwarded.
-# It maps the frontend port to the backend port and uses the health probe for monitoring.
-######################################
+# Defines traffic forwarding behavior.
 resource "azurerm_lb_rule" "coderco_lb_rule" {
   name                           = var.lb_rule_name
   loadbalancer_id                = azurerm_lb.coderco_lb_module.id
